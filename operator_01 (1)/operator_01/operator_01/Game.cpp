@@ -109,13 +109,13 @@ void Game::Update() {
 	tempAsteroid.clear();
 
 	//BULLET DESTROY FUNCTION
-	if (bullet.size() > 0) {
-		auto i = std::remove_if(bullet.begin(), bullet.end(), [&](gameobject o)
-			{return (o.x < 1 || o.y < 1 || o.x >= getscreenwidth() || o.y >= getscreenheight()); });
-		if (i != bullet.end()) {
-			bullet.erase(i);
-		}
-	}
+	//if (bullet.size() > 0) {
+	//	auto i = std::remove_if(bullet.begin(), bullet.end(), [&](gameobject o)
+	//		{return (o.x < 1 || o.y < 1 || o.x >= getscreenwidth() || o.y >= getscreenheight()); });
+	//	if (i != bullet.end()) {
+	//		bullet.erase(i);
+	//	}
+	//}
 
 	//ASTEROID DESTROY FUNCTION
 	if (asteroid.size() > 0) {

@@ -13,18 +13,22 @@ void Object::GameLoad() {
 	rotSpeed = 5.0f;
 	player.thrSpeed = 60.0f;
 	player.Alive = true;
-
+	player.xSpeed = 0;
+	player.ySpeed = 0;
 	boost = false;
 	turbo = false;
 	
+	arrPos = DefAsteroid - 1;
 
 	for (int i = 0; i < DefAsteroid; i++) {
 		xRandSpd = 10 + rand() % 40;
 		yRandSpd = 10 + rand() % 40;
-		xRandPos = rand() % GetScreenWidth();
-		yRandPos = rand() % GetScreenHeight();
+		 do {
+		  xRandPos = rand() % GetScreenWidth();
+		  yRandPos = rand() % GetScreenHeight();
+		 } while (Collision(player.m20, player.m21, 50, xRandPos, yRandPos));
 		asteroids[i] = {
-			10, 0, xRandPos,
+			10, -0, xRandPos,
 			10, 0, yRandPos,
 			0, 0, 1, 
 
@@ -39,11 +43,35 @@ void Object::GameLoad() {
 
 }
 
+void Object::RESET() {
+	for (int i = 0; i < DefAsteroid * 4; i++) {
+		asteroids[i].Health = 0;
+	}
+	GameLoad();
+	points = 0;
+	rounds = 0;
+
+}
+
 void Object::Update() {
+	if (player.Alive == false) {
+		RESET();
+		GameLoad();
+	}
 	Controller();
 	CUpdate();
 	SpriteUpdate();
-
+	int ResetCheck = 0;
+	for (int i = 0; i < DefAsteroid * 4; i++) {
+		if (asteroids[i].Health == 0) {
+			ResetCheck++;
+		}
+	}
+	if (ResetCheck == 20) {
+		points += 1000;
+		GameLoad();
+		rounds++;
+	}
 }
 
 void Object::Controller() {
@@ -194,6 +222,9 @@ void Object::SpriteUpdate() {
 		asteroids[i].m20 += asteroids[i].xSpeed * GetFrameTime();
 		asteroids[i].m21 += asteroids[i].ySpeed * GetFrameTime();
 		WrapCoordinates(asteroids[i].m20, asteroids[i].m21, asteroids[i].m20, asteroids[i].m21);
+		if (Collision(asteroids[i].m20, asteroids[i].m21, asteroids[i].Health, player.m20, player.m21)) {
+			player.Alive = false;
+		}
 	}
 }
 
@@ -227,7 +258,8 @@ void Object::Draw() {
 		DrawPixel(db.m20, db.m21, ORANGE);
 	}
 
-	DrawText(TextFormat("Score: %05i", points), 10, 10, 20, YELLOW);
+	DrawText(TextFormat("Score: %05i", points), 10, 10, 10, YELLOW);
+	DrawText(TextFormat("Round: %i", rounds), 10, 20, 10, YELLOW);
 	EndDrawing();
 }
 

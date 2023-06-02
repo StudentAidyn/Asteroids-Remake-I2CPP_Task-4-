@@ -15,6 +15,7 @@ public:
 	void SpriteUpdate();
 	void Draw();
 	void End();
+	void RESET();
 
 	const float MAX_SPEED = 200.0f;
 	bool turbo;
@@ -76,9 +77,11 @@ public:
 
 
 	//position finder for the array
-	int arrPos = DefAsteroid - 1;
+	int arrPos;
 
-	int points;
+	//Player knows they are advancing
+	int points = 0;
+	int rounds = 0;
 
 	//gameObject[5]; 
 	void AddBullet();
