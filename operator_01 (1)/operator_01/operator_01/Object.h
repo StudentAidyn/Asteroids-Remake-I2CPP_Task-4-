@@ -98,6 +98,6 @@ public:
 	void WrapCoordinates(float ix, float iy, float& ox, float& oy);
 	void SpeedCap(float ixs, float iys, float& oxs, float& oys);
 	bool Collision(float cx, float cy, float radius, float x, float y);
-	Vector2 ANGLE(gameObject);
+	
 };
 
