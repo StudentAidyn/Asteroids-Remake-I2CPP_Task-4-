@@ -2,6 +2,7 @@
 #include <raylib.h>
 #include "Game.h"
 #include "Object.h"
+#include "GameRunner.h"
 using namespace std;
 
 int main() {
@@ -18,16 +19,27 @@ int main() {
 	//
 	//game.End();
 
-	Object game;
+	//Object game;
+	//InitWindow(600, 400, "Asteroids_GAME--Aidyn_RADFORD");
+	//game.GameLoad();
+	//
+
+	//while (!WindowShouldClose()) {
+	//	game.Update();
+	//	game.Draw();
+	//}
+
+	//game.End();
+
+	GameRunner game;
 	InitWindow(600, 400, "Asteroids_GAME--Aidyn_RADFORD");
 	game.GameLoad();
-	
+
 
 	while (!WindowShouldClose()) {
 		game.Update();
 		game.Draw();
 	}
 
-	game.End();
 	return 0;
 }

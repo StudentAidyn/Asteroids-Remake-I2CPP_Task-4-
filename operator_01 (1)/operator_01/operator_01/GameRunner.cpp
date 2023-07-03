@@ -1,43 +1,27 @@
 #include "GameRunner.h"
-#include "Player.h"
-#include "Asteroid.h"
-#include <iostream>
 
 
-Player player;
+GameRunner::GameRunner() {
+	asteroids[DefAsteroidNum * 4];
+}
+
+GameRunner::~GameRunner() {
+
+}
 
 void GameRunner::GameLoad() {
-	
-	player.M3.m20 = GetScreenWidth() / 2.0f;
-	player.M3.m21 = GetScreenHeight() / 2.0f;
-	SpriteUpdate();
-	player.rotSpeed = 5.0f;
-	player.thrSpeed = 60.0f;
-	player.Alive = true;
-	player.xSpeed = 0;
-	player.ySpeed = 0;
-	boost = false;
-	turbo = false;
+	player.Reset();
 
 	arrPos = DefAsteroidNum - 1;
 
 	for (int i = 0; i < DefAsteroidNum; i++) {
-		xRandSpd = 10 + rand() % 40;
-		yRandSpd = 10 + rand() % 40;
+		asteroids[i].xRandSpd = 10 + rand() % 40;
+		asteroids[i].yRandSpd = 10 + rand() % 40;
 		do {
-			xRandPos = rand() % GetScreenWidth();
-			yRandPos = rand() % GetScreenHeight();
-		} while (Collision(player.m20, player.m21, 50, xRandPos, yRandPos));
-		asteroids[i] = {
-			10, -0, xRandPos,
-			10, 0, yRandPos,
-			0, 0, 1,
-
-			xRandSpd,
-			yRandSpd,
-			0,
-			40
-		};
+			asteroids[i].xRandPos = (rand() + 1) % GetScreenWidth();
+			asteroids[i].yRandPos = (rand() + 1) % GetScreenHeight();
+		} while (player.M3.Collision(player.M3.m20, player.M3.m21, 50, asteroid.xRandPos, asteroid.yRandPos));
+		asteroids[i].SimpleSet(asteroid.xRandPos, asteroid.yRandPos, asteroid.xRandSpd, asteroid.yRandSpd, asteroid.STRT_HEALTH);
 
 
 	}
@@ -55,11 +39,27 @@ void GameRunner::Reset() {
 }
 
 void GameRunner::Update() {
+	//check if the player has been hit by an asteroid, if so RESET
 	if (player.Alive == false) {
 		Reset();
 		GameLoad();
 	}
-	player.Controller();
+
+	float DeltaTime = GetFrameTime();
+
+	player.Controller(DeltaTime);
+
+	player.Update();
+
+	//asteroid update
+	for (int i = 0; i < DefAsteroidNum * 4; i++) {
+		asteroids[i].Update();
+		asteroid.M3.WrapCoordinates(asteroids[i].M3.m20, asteroids[i].M3.m21, asteroids[i].M3.m20, asteroids[i].M3.m21);
+		if (asteroid.M3.Collision(asteroids[i].M3.m20, asteroids[i].M3.m21, asteroids[i].Health, player.M3.m20, player.M3.m21)) {
+			player.Alive = false;
+		}
+	}
+
 	ContUpdate();
 	SpriteUpdate();
 	int ResetCheck = 0;
@@ -79,26 +79,17 @@ void GameRunner::Update() {
 void GameRunner::ContUpdate() {
 
 
-	//asteroid update
-	for (int i = 0; i < DefAsteroidNum * 4; i++) {
-		asteroids[i].m20 += asteroids[i].xSpeed * GetFrameTime();
-		asteroids[i].m21 += asteroids[i].ySpeed * GetFrameTime();
-		WrapCoordinates(asteroids[i].m20, asteroids[i].m21, asteroids[i].m20, asteroids[i].m21);
-		if (Collision(asteroids[i].m20, asteroids[i].m21, asteroids[i].Health, player.m20, player.m21)) {
-			player.Alive = false;
-		}
-	}
 }
 
 void GameRunner::SpriteUpdate() {
 
+	
 	//update bullet and check for asteroid collision
 	for (auto& b : bullet) {
-		b.m20 += b.xSpeed * 5 * GetFrameTime();
-		b.m21 += b.ySpeed * 5 * GetFrameTime();
+		b.Update();
 		for (int i = 0; i < DefAsteroidNum * 4; i++) {
-			if (Collision(asteroids[i].m20, asteroids[i].m21, asteroids[i].Health, b.m20, b.m21)) {
-				b.m20 = -100;
+			if (asteroids[i].M3.Collision(asteroids[i].M3.m20, asteroids[i].M3.m21, asteroids[i].Health, b.M3.m20, b.M3.m21)) {
+				b.M3.m20 = -100;
 
 				//points system
 				if (asteroids[i].Health > 20) { points += 10; }
@@ -111,8 +102,8 @@ void GameRunner::SpriteUpdate() {
 					arrPos++;
 					float angle1 = ((float)rand() / (float)RAND_MAX) * (2 * PI);
 					float angle2 = ((float)rand() / (float)RAND_MAX) * (2 * PI);
-					asteroids[arrPos].SimpleSet(asteroids[i].m20, asteroids[i].m21, 40.0f * sinf(angle1), -40.0f * cosf(angle1), asteroids[i].Health / 2);
-					asteroids[i].SimpleSet(asteroids[i].m20, asteroids[i].m21, 40.0f * sinf(angle2), -40.0f * cosf(angle2), asteroids[i].Health / 2);
+					asteroids[arrPos].SimpleSet(asteroids[i].M3.m20, asteroids[i].M3.m21, 40.0f * sinf(angle1), -40.0f * cosf(angle1), asteroids[i].Health / 2);
+					asteroids[i].SimpleSet(asteroids[i].M3.m20, asteroids[i].M3.m21, 40.0f * sinf(angle2), -40.0f * cosf(angle2), asteroids[i].Health / 2);
 					//tempAsteroid.push_back({ a.x, a.y, 40.0f * sinf(angle2), -40.0f * cosf(angle2), a.oSize / 2, 0.0f });
 				}
 				else if (asteroids[i].Health < 20) {
@@ -123,16 +114,21 @@ void GameRunner::SpriteUpdate() {
 
 			}
 		}
+
+		//if (b.M3.m20 < 1 || b.M3.m21 < 1 || b.M3.m20 >= GetScreenWidth() || b.M3.m21 >= GetScreenHeight()) {
+		//	b.erase();
+		//}
 	}
 
-	if (bullet.size() > 0) {
-		auto i = std::remove_if(bullet.begin(), bullet.end(), [&](gameObject o)
-			{return (o.m20 < 1 || o.m21 < 1 || o.m20 >= GetScreenWidth() || o.m21 >= GetScreenHeight()); });
-		if (i != bullet.end()) {
-			bullet.erase(i);
-		}
-	}
+	//if (bullet.size() > 0) {
+	//	auto i = std::remove_if(bullet.begin(), bullet.end(), [&](bullet.M3 o)
+	//		{return (o.m20 < 1 || o.m21 < 1 || o.m20 >= GetScreenWidth() || o.m21 >= GetScreenHeight()); });
+	//	if (i != bullet.end()) {
+	//		bullet.erase(i);
+	//	}
+	//}
 
+	//for (auto& Rb : bullet)
 
 }
 
@@ -141,12 +137,15 @@ void GameRunner::Draw() {
 	BeginDrawing();
 	ClearBackground(BLACK);
 
+	player.Draw();
+
 	for (int i = 0; i < DefAsteroidNum * 4; i++) {
-		DrawCircleLines(asteroids[i].m20, asteroids[i].m21, asteroids[i].Health, GREEN);
+		//asteroids[i].Draw();
+		DrawCircleLines(asteroids[i].M3.m20, asteroids[i].M3.m21, asteroids[i].Health, GREEN);
 	}
 
-	for (auto db : bullet) {
-		DrawPixel(db.m20, db.m21, ORANGE);
+	for (auto db : bullet) { 
+		db.Draw();
 	}
 
 	DrawText(TextFormat("Score: %05i", points), 10, 10, 10, YELLOW);
@@ -155,13 +154,9 @@ void GameRunner::Draw() {
 }
 
 
-
-
 void GameRunner::AddBullet() {
 	bullet.push_back({ //x, y, rotx, roty
 	player.M3.m20, player.M3.m21, player.M3.m10, player.M3.m11
-	//bulletSpeed * sinf(angle()),
-	//-bulletSpeed * cosf(angle()),
-		});
+	});
 }
 

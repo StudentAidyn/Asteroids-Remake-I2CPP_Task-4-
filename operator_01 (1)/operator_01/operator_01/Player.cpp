@@ -1,6 +1,15 @@
 #include "Player.h"
 
 Player::Player() {
+
+	M3.m20 = GetScreenWidth() / 2.0f;
+	M3.m21 = GetScreenHeight() / 2.0f;
+	SpriteUpdate();
+	rotSpeed = 5.0f;
+	thrSpeed = 60.0f;
+	Alive = true;
+	xSpeed = 0;
+	ySpeed = 0;
 	boost = false;
 	turbo = false;
 }
@@ -9,54 +18,33 @@ Player::~Player() {
 
 }
 
-void Player::SpeedCap(float ixs, float iys, float& oxs, float& oys) {
-
-	if (xSpeed >= MAX_SPEED) {
-		xSpeed = MAX_SPEED - 1;
-	}
-	else if (xSpeed <= -MAX_SPEED) {
-		xSpeed = -MAX_SPEED + 1;
-	}
-	if (ySpeed >= MAX_SPEED) {
-		ySpeed = MAX_SPEED - 1;
-	}
-	else if (ySpeed <= -MAX_SPEED) {
-		ySpeed = -MAX_SPEED + 1;
-	}
+void Player::Reset() {
+	M3.m20 = GetScreenWidth() / 2.0f;
+	M3.m21 = GetScreenHeight() / 2.0f;
+	SpriteUpdate();
+	rotSpeed = 5.0f;
+	thrSpeed = 60.0f;
+	Alive = true;
+	xSpeed = 0;
+	ySpeed = 0;
+	boost = false;
+	turbo = false;
 }
 
-void Player::SpriteUpdate() {
-
-	//Rotation
-	for (int i = 0; i < 7; i++) {
-		sx[i] = mx[i] * cos(angle()) - my[i] * sin(angle());
-		sy[i] = mx[i] * sin(angle()) + my[i] * cos(angle());
-	}
-
-	//Tranform
-	for (int i = 0; i < 7; i++) {
-		sx[i] = sx[i] + M3.m20;
-		sy[i] = sy[i] + M3.m21;
-	}
-}
-
-void Player::Controller() {
-
+void Player::Controller(float DeltaTime) {
 	//Rotational Inputs-------------------------
 
 	//Anti-Clockwise
 	if (IsKeyDown(KEY_A)) {
 		//Positive GetFrameTime
-		DeltaTimer = GetFrameTime() * rotSpeed;
-		Rotate(DeltaTimer, M3);
+		Rotate(DeltaTime * rotSpeed, M3);
 
 	}
 
 	//Clockwise
 	if (IsKeyDown(KEY_D)) {
 		//Negative GetFrameTime
-		DeltaTimer = -GetFrameTime() * rotSpeed;
-		Rotate(DeltaTimer, M3);
+		Rotate(-DeltaTime * rotSpeed, M3);
 
 	}
 
@@ -85,22 +73,37 @@ void Player::Controller() {
 	else if (IsKeyUp(KEY_S)) { turbo = false; }
 
 
-	//function to limit the sped the player can move
+	//function to limit the speed the player can move
 	SpeedCap(xSpeed, ySpeed, xSpeed, ySpeed);
-
 
 	//shooting
 	if (IsKeyPressed(KEY_SPACE)) {
-		AddBullet();
+		
 	}
+}
 
-
-	//UPDATER
+void Player::Update() {
 	M3.m20 += xSpeed * GetFrameTime();
 	M3.m21 += ySpeed * GetFrameTime();
 
 	WrapCoordinates(M3.m20, M3.m21, M3.m20, M3.m21);
 
+	SpriteUpdate();
+}
+
+void Player::SpriteUpdate() {
+
+	//Rotation
+	for (int i = 0; i < 7; i++) {
+		sx[i] = mx[i] * cos(angle()) - my[i] * sin(angle());
+		sy[i] = mx[i] * sin(angle()) + my[i] * cos(angle());
+	}
+
+	//Tranform
+	for (int i = 0; i < 7; i++) {
+		sx[i] = sx[i] + M3.m20;
+		sy[i] = sy[i] + M3.m21;
+	}
 }
 
 void Player::Draw() {
@@ -126,10 +129,19 @@ void Player::Draw() {
 	EndDrawing();
 }
 
-void Player::AddBullet() {
-	bullet.push_back({ //x, y, rotx, roty
-	M3.m20, M3.m21, M3.m10, M3.m11
-	bulletSpeed * sinf(angle()),
-	-bulletSpeed * cosf(angle()),
-		});
+
+void Player::SpeedCap(float ixs, float iys, float& oxs, float& oys) {
+
+	if (xSpeed >= MAX_SPEED) {
+		xSpeed = MAX_SPEED - 1;
+	}
+	else if (xSpeed <= -MAX_SPEED) {
+		xSpeed = -MAX_SPEED + 1;
+	}
+	if (ySpeed >= MAX_SPEED) {
+		ySpeed = MAX_SPEED - 1;
+	}
+	else if (ySpeed <= -MAX_SPEED) {
+		ySpeed = -MAX_SPEED + 1;
+	}
 }

@@ -1,14 +1,31 @@
 #pragma once
 #include <raylib.h>
-#include <list>
+#include <Vector>
+#include <iostream>
+
 #include "Bullet.h"
+#include "Controller.h"
+#include "Player.h"
+#include "Asteroid.h"
+#include "GameObject.h"
 
 class GameRunner
 {
+public:
+	GameRunner();
+	~GameRunner();
+
+	Player player;
+	Asteroid asteroid;
+	Controller control;
+
+	Helper helper;
+
+	float DeltaTime;
+
 	//functions
 	void GameLoad();
 	void Reset();
-	void Controller();
 	void Update();
 	void Draw();
 
@@ -19,7 +36,7 @@ class GameRunner
 	void AddBullet();
 
 	//base variables
-	int DefAsteroidNum = 5;
+	const int DefAsteroidNum = 5;
 
 	//variables
 	float DeltaTimer;
@@ -27,6 +44,9 @@ class GameRunner
 	int points;
 	int rounds;
 
-	std::list <Bullet> bullet;
+	std::vector <Bullet> bullet;
+	Asteroid asteroids[];
+	//two different asteroid types, one is a regular call to class, 
+	//another is the array, the call to class is like a temporary value
 };
 
