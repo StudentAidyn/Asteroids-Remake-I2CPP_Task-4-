@@ -1,3 +1,5 @@
+//this is the old one that I don't want to use because I followed too close to a video
+
 #include "Game.h"
 #include <vector>
 

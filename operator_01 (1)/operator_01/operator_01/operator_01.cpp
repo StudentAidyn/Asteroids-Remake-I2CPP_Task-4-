@@ -1,33 +1,17 @@
 #include <iostream>
 #include <raylib.h>
-#include "Game.h"
-#include "Object.h"
+#include "GameRunner.h"
 using namespace std;
 
 int main() {
-	cout << "Hello World!";
-
-	//Game game;
-	//game.GameLoad();
-	//InitWindow(600, 400, "TestWindow");
-
-	//while (!WindowShouldClose()) {
-	//	game.Update();
-	//	game.Draw();
-	//}
-	//
-	//game.End();
-
-	Object game;
+	GameRunner game;
 	InitWindow(600, 400, "Asteroids_GAME--Aidyn_RADFORD");
-	game.GameLoad();
-	
+	game.GameLoad(); //IMPORTANT -> call Window Before GameLoad or won't spawn player properly
 
 	while (!WindowShouldClose()) {
-		game.Update();
-		game.Draw();
+		game.Tick(); //Tick is Update but called tick as it runs through the updates
+		game.Draw(); //calls draw as often as each tick
 	}
 
-	game.End();
 	return 0;
 }

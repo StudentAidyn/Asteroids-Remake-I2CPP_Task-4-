@@ -4,13 +4,22 @@
 
 class GameObject
 {
-	//matrix
+public: //for other constructors/destructors to work, these need to be public
 	GameObject();
 	~GameObject();
-public:
-	float m00, m10, m20;
-	float m01, m11, m21;
-	float m02, m12, m22;
+
+
+	virtual struct Matrix3 { //matrix 3 in struct to separate from Main
+		float m00, m10, m20;
+		float m01, m11, m21;
+		float m02, m12, m22;
+
+		void Set();
+	};
+	
+	Matrix3 M3;
+
+	//Constant Variables -> used in all other inherited game objects
 	float xSpeed;
 	float ySpeed;
 	float thrSpeed;
@@ -18,13 +27,11 @@ public:
 
 	bool Alive;
 
-
-
-	float angle() {
-		float result;
-		result = atan2(m10, m11);
-		return result;
-	}
-
+	//virtual functions, will be updated when inherited
+	virtual void Update();
+	virtual void Draw();
+	
+	//Constant Function
+	virtual float angle();
 };
 
